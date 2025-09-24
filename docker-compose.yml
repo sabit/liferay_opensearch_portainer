@@ -4,8 +4,8 @@ services:
     image: liferay/dxp:latest # Replace with your desired Liferay DXP image
     container_name: liferay_dxp    
     environment:
-      LIFERAY_SEARCH_ENGINE_TYPE: opensearch # Specify OpenSearch as the search engine
-      LIFERAY_SEARCH_ENGINE_OPEN_SEARCH_HOSTS: http://admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD@opensearch:9200
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD} # Set this in your .env file or environment
+      LIFERAY_JAVA_OPTS: "-Xms2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
     volumes:
       - liferay_data:/opt/liferay/data # Persistent data for Liferay
       - liferay_logs:/opt/liferay/logs
