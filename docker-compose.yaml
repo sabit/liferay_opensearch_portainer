@@ -8,6 +8,7 @@ services:
       LIFERAY_SEARCH_ENGINE_OPEN_SEARCH_HOSTS: http://admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD@opensearch:9200
     volumes:
       - liferay_data:/opt/liferay # Persistent data for Liferay
+      - ./portal-ext.properties:/opt/liferay/portal-ext.properties:ro
     # depends_on:
       # opensearch:
         # condition: service_healthy   # Wait for healthcheck      
