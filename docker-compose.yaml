@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  liferay:
+    image: liferay/dxp:latest # Replace with your desired Liferay DXP image
+    container_name: liferay_dxp    
+    environment:
+      LIFERAY_SEARCH_ENGINE_TYPE: opensearch # Specify OpenSearch as the search engine
+      LIFERAY_SEARCH_ENGINE_OPEN_SEARCH_HOSTS: http://admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD@opensearch:9200
+    volumes:
+      - liferay_data:/opt/liferay # Persistent data for Liferay
+    # depends_on:
+      # opensearch:
+        # condition: service_healthy   # Wait for healthcheck      
+    networks:
+      - nginx-proxy-manager_default
+      - liferay_internal
+
+  opensearch:
+    image: opensearchproject/opensearch:latest # Use the latest OpenSearch image or a specific version
+    container_name: opensearch_node1
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-node1
+      - discovery.seed_hosts=opensearch-node1
+      - cluster.initial_cluster_manager_nodes=opensearch-node1
+      - OPENSEARCH_JAVA_OPTS=-Xms2g -Xmx2g
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data # Persistent data for OpenSearch
+    networks:
+      - liferay_internal
+    # healthcheck:
+        # test: ["CMD", "curl", "-fsu", "admin:${OPENSEARCH_INITIAL_ADMIN_PASSWORD}", "http://localhost:9200/_cluster/health"]
+        # interval: 30s
+        # timeout: 10s
+        # retries: 10
+        # start_period: 60s
+      
+volumes:
+  liferay_data:
+  opensearch_data:
+  
+networks:
+  liferay_internal:
+      driver: bridge
+  nginx-proxy-manager_default:
+      external: true
